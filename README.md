@@ -1,21 +1,21 @@
-# UtilityX Smart Contracts
+# FusePay Smart Contracts
 
-This repository contains the smart contracts used by the UtilityX platform, built on the Stellar network using the Soroban framework.
+This repository contains the smart contracts used by the FusePay platform, built on the Stellar network using the Soroban framework.
 
-These contracts enable secure, transparent, and decentralized escrow transactions for the UtilityX peer-to-peer utility marketplace.
+These contracts enable secure, transparent, and decentralized escrow transactions for the FusePay peer-to-peer utility marketplace.
 
 ---
 
 ## Overview
 
-Smart contracts in UtilityX are used to:
+Smart contracts in FusePay are used to:
 
 * Lock funds in escrow during marketplace trades
 * Securely manage transactions between buyers and sellers
 * Ensure transparent and tamper-proof trade execution
 * Provide on-chain verification of marketplace activity
 
-These contracts significantly improve trust and reliability within the UtilityX ecosystem.
+These contracts significantly improve trust and reliability within the FusePay ecosystem.
 
 ---
 
