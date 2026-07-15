@@ -1,0 +1,6 @@
+[toolchain]
+# FusePay uses stable Rust. The minimum version for Soroban SDK 26.x is 1.84.
+# We use stable (currently 1.97) which includes all required features.
+channel    = "stable"
+targets    = ["wasm32-unknown-unknown"]
+components = ["rustc", "cargo", "rustfmt", "clippy", "rust-src"]

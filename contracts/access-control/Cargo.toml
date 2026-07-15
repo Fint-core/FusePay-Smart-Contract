@@ -1,0 +1,23 @@
+[package]
+name        = "fusepay-access-control"
+description = "Role-based access control contract for the FusePay platform"
+version.workspace    = true
+edition.workspace    = true
+authors.workspace    = true
+license.workspace    = true
+repository.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+soroban-sdk      = { workspace = true }
+shared-types     = { workspace = true }
+shared-errors    = { workspace = true }
+shared-events    = { workspace = true }
+shared-constants = { workspace = true }
+
+[dev-dependencies]
+soroban-sdk = { version = "=26.1.0", features = ["testutils"] }
+
+

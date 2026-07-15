@@ -1,0 +1,14 @@
+[package]
+name        = "shared-constants"
+description = "Shared compile-time constants for all FusePay contracts"
+version.workspace    = true
+edition.workspace    = true
+authors.workspace    = true
+license.workspace    = true
+repository.workspace = true
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+soroban-sdk = { workspace = true }

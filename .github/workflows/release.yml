@@ -1,0 +1,73 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    name: Build & Publish Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Install soroban-cli
+        run: cargo install --locked soroban-cli --features opt
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-release-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Run full CI checks
+        run: |
+          cargo fmt --all -- --check
+          cargo clippy --all-targets --all-features --workspace -- -D warnings
+          cargo test --workspace --exclude fusepay-integration-tests
+
+      - name: Build release wasm
+        run: |
+          cargo build --release --target wasm32-unknown-unknown \
+            --exclude fusepay-integration-tests \
+            --workspace
+
+      - name: Optimise wasm binaries
+        run: |
+          mkdir -p target/optimised
+          for wasm in target/wasm32-unknown-unknown/release/fusepay_*.wasm; do
+            name=$(basename "$wasm" .wasm)
+            soroban contract optimize \
+              --wasm "$wasm" \
+              --wasm-out "target/optimised/${name}.optimised.wasm"
+            echo "Optimised: $name"
+          done
+
+      - name: Create release archive
+        run: |
+          VERSION="${GITHUB_REF#refs/tags/}"
+          mkdir -p release-artifacts
+          cp target/optimised/*.wasm release-artifacts/
+          tar -czf "fusepay-contracts-${VERSION}-wasm.tar.gz" -C release-artifacts .
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            fusepay-contracts-*.tar.gz
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref, '-rc') || contains(github.ref, '-beta') || contains(github.ref, '-alpha') }}

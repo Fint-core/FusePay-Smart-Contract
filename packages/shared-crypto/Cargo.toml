@@ -1,0 +1,15 @@
+[package]
+name        = "shared-crypto"
+description = "Shared cryptographic helpers for FusePay contracts"
+version.workspace    = true
+edition.workspace    = true
+authors.workspace    = true
+license.workspace    = true
+repository.workspace = true
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+soroban-sdk   = { workspace = true }
+shared-errors = { workspace = true }

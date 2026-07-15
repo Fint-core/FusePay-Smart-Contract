@@ -1,0 +1,86 @@
+[workspace]
+resolver = "2"
+
+members = [
+    # Contracts
+    "contracts/wallet",
+    "contracts/escrow",
+    "contracts/multisig",
+    "contracts/treasury",
+    "contracts/access-control",
+    "contracts/fee-manager",
+    "contracts/oracle",
+
+    # Shared packages
+    "packages/shared-types",
+    "packages/shared-errors",
+    "packages/shared-events",
+    "packages/shared-utils",
+    "packages/shared-crypto",
+    "packages/shared-constants",
+
+    # Integration tests
+    "integration-tests",
+]
+
+[workspace.package]
+version     = "0.1.0"
+edition     = "2021"
+authors     = ["FusePay Contributors"]
+license     = "MIT"
+repository  = "https://github.com/fusepay/fusepay-contracts"
+homepage    = "https://fusepay.io"
+description = "Soroban smart contracts for the FusePay fintech platform"
+
+[workspace.dependencies]
+# Soroban SDK — pinned to a specific version for deterministic builds
+# NOTE: testutils feature is intentionally NOT enabled here at workspace level.
+# Each contract enables it only in [dev-dependencies].
+soroban-sdk = { version = "=26.1.0" }
+
+# Pin ed25519-dalek to 2.x — soroban-env-host 26.x requires exactly 2.x.
+# Without this pin Cargo may resolve 3.x for other dependants, which breaks
+# the testutils build due to a rand_core version mismatch.
+ed25519-dalek = { version = "=2.1.1" }
+
+# Shared workspace packages
+shared-types     = { path = "packages/shared-types" }
+shared-errors    = { path = "packages/shared-errors" }
+shared-events    = { path = "packages/shared-events" }
+shared-utils     = { path = "packages/shared-utils" }
+shared-crypto    = { path = "packages/shared-crypto" }
+shared-constants = { path = "packages/shared-constants" }
+
+# Serialization
+serde      = { version = "1.0.197", default-features = false }
+serde_json = { version = "1.0.114", default-features = false }
+
+[profile.release]
+# Optimise wasm binary size
+opt-level     = "z"
+overflow-checks = true
+debug         = false
+strip         = "symbols"
+lto           = true
+codegen-units = 1
+panic         = "abort"
+
+[profile.release-with-logs]
+inherits = "release"
+debug    = true
+
+[profile.test-optimised]
+inherits  = "test"
+opt-level = 1
+
+# ── Dependency patches ────────────────────────────────────────────────────────
+# soroban-env-host declares `ed25519-dalek = ">=2.0.0"` which allows Cargo to
+# resolve 3.x. The testutils code uses the 2.x API (rand_core 0.6 CryptoRng)
+# which is incompatible with 3.x. We replace the 3.x resolution with a local
+# redirect to 2.2.0 by specifying an exact-version override below.
+#
+# NOTE: Cargo does not support replacing one semver range with another via
+# [patch]. The working approach is to specify ed25519-dalek as a workspace
+# dep (done above) so every workspace member uses 2.1.1, and use
+# `cargo update -p ed25519-dalek --precise 2.2.0` after first resolution to
+# lock the transitive dep.  See the developer guide for instructions.

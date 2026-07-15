@@ -1,124 +1,187 @@
-# FusePay Smart Contracts
+# FusePay Contracts
 
-This repository contains the smart contracts used by the FusePay platform, built on the Stellar network using the Soroban framework.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Build Status](https://github.com/fusepay/fusepay-contracts/actions/workflows/ci.yml/badge.svg)](https://github.com/fusepay/fusepay-contracts/actions)
+[![Security Audit](https://img.shields.io/badge/security-audited-green)](./docs/audits/)
 
-These contracts enable secure, transparent, and decentralized escrow transactions for the FusePay peer-to-peer utility marketplace.
+> Production-ready Soroban smart contracts for the FusePay open-source fintech platform.
 
 ---
 
 ## Overview
 
-Smart contracts in FusePay are used to:
+FusePay is an open-source fintech platform that enables wallet management, peer-to-peer payments, escrow, and fee distribution on the Stellar network via Soroban smart contracts.
 
-* Lock funds in escrow during marketplace trades
-* Securely manage transactions between buyers and sellers
-* Ensure transparent and tamper-proof trade execution
-* Provide on-chain verification of marketplace activity
+This repository contains **only the trustless blockchain layer**. Off-chain operations such as airtime top-ups, data bundle purchases, and gift card redemptions are handled by the FusePay backend services and are deliberately excluded from the on-chain layer.
 
-These contracts significantly improve trust and reliability within the FusePay ecosystem.
+### What lives on-chain
 
----
-
-## Tech Stack
-
-* Rust
-* Soroban
-* Stellar SDK
-* Soroban CLI
+| Contract | Responsibility |
+|---|---|
+| `wallet` | Wallet ownership, deposits, withdrawals, balance tracking |
+| `escrow` | Trustless fund locking, release, refund, and dispute handling |
+| `multisig` | Multi-signature proposal, approval, and execution |
+| `treasury` | Platform revenue collection and authorized disbursements |
+| `access-control` | Role-based permission management (Owner, Admin, Operator, Auditor) |
+| `fee-manager` | Fee calculation, discount rules, and referral commissions |
+| `oracle` | *(Future)* Price feeds and exchange rate verification |
 
 ---
 
-## Folder Structure
+## Repository Structure
 
-contracts/
-├── escrow/             # Escrow contract for marketplace trades
-│   └── lib.rs
-├── wallet/             # Smart wallet contract
-│   └── lib.rs
-└── trade/              # Trade execution logic
-└── lib.rs
-
-scripts/
-├── deploy.sh           # Deployment scripts using Soroban CLI
-
-test/
-├── escrow_test.rs      # Escrow contract tests
-├── wallet_test.rs      # Wallet contract tests
-
-Cargo.toml              # Rust project configuration
-soroban.toml            # Soroban configuration
-
----
-
-## Smart Contract Responsibilities
-
-* Escrow fund management
-* Secure trade execution
-* On-chain transaction verification
-* Event logging for marketplace activities
-
----
-
-## Development
-
-### Install dependencies
-
-Make sure you have Rust and Soroban CLI installed.
-
-```bash
-rustup update
-cargo install --locked soroban-cli
+```
+fusepay-contracts/
+├── contracts/              # Individual Soroban smart contracts
+│   ├── wallet/
+│   ├── escrow/
+│   ├── multisig/
+│   ├── treasury/
+│   ├── access-control/
+│   ├── fee-manager/
+│   └── oracle/
+├── packages/               # Shared reusable libraries
+│   ├── shared-types/
+│   ├── shared-errors/
+│   ├── shared-events/
+│   ├── shared-utils/
+│   ├── shared-crypto/
+│   └── shared-constants/
+├── scripts/                # Deployment and utility scripts
+│   ├── deploy/
+│   └── utils/
+├── deployments/            # Deployment manifests per network
+│   ├── local/
+│   ├── testnet/
+│   └── mainnet/
+├── integration-tests/      # Cross-contract integration tests
+├── docs/                   # Architecture docs and diagrams
+│   └── audits/
+└── examples/               # Usage examples
 ```
 
 ---
 
-### Build contracts
+## Prerequisites
+
+- [Rust](https://www.rust-lang.org/tools/install) >= 1.78
+- [Soroban CLI](https://soroban.stellar.org/docs/getting-started/setup) >= 21.0
+- [stellar-cli](https://github.com/stellar/stellar-cli)
+- Docker (for local Stellar network)
 
 ```bash
-cargo build --target wasm32-unknown-unknown --release
+# Install Rust
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Add wasm32 target
+rustup target add wasm32-unknown-unknown
+
+# Install Soroban CLI
+cargo install --locked soroban-cli --features opt
 ```
 
 ---
 
-### Run tests
+## Quick Start
 
 ```bash
-cargo test
+# Clone the repository
+git clone https://github.com/fusepay/fusepay-contracts.git
+cd fusepay-contracts
+
+# Build all contracts
+make build
+
+# Run all unit tests
+make test
+
+# Run security checks
+make audit
+
+# Deploy to local network
+make deploy-local
 ```
 
 ---
 
-### Deploy contracts
+## Building
 
 ```bash
-soroban contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/contract.wasm \
-  --source <your-key> \
-  --network testnet
+# Build all contracts
+make build
+
+# Build a specific contract
+make build-contract CONTRACT=wallet
+
+# Optimise wasm for deployment
+make optimise
 ```
+
+---
+
+## Testing
+
+```bash
+# Unit tests (all contracts)
+make test
+
+# Integration tests
+make integration-test
+
+# Security-focused tests
+make security-test
+
+# Full test suite with coverage
+make test-all
+```
+
+---
+
+## Deployment
+
+```bash
+# Local Stellar network (Docker)
+make deploy-local
+
+# Testnet
+make deploy-testnet NETWORK_PASSPHRASE="..." SECRET_KEY="..."
+
+# Mainnet (requires hardware key confirmation)
+make deploy-mainnet
+```
+
+See [`scripts/deploy/`](./scripts/deploy/) and [`deployments/`](./deployments/) for detailed deployment manifests.
 
 ---
 
 ## Security
 
-All smart contracts must be thoroughly tested and reviewed before deployment.
+FusePay contracts are designed with defence-in-depth:
 
-Key practices include:
+- Role-based access control on every privileged function
+- Multi-signature approval for treasury operations above thresholds
+- Overflow-safe arithmetic throughout (Soroban SDK i128/u128)
+- Input validation on every public entry point
+- No `unwrap()` in production paths — all errors are typed
+- Event emission for every state-changing operation
+- Replay protection on sensitive operations
 
-* Unit and integration testing
-* Code reviews
-* Secure handling of escrow logic
-* Validation of all inputs and state transitions
+Please read [`SECURITY.md`](./SECURITY.md) before reporting vulnerabilities.
 
 ---
 
-## Contribution
+## Contributing
 
-Developers can contribute by:
+See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for guidelines on how to contribute.
 
-* Improving contract logic and performance
-* Adding new features to escrow and trade systems
-* Enhancing test coverage
-* Reviewing and auditing smart contracts
+---
 
-Please follow the contribution guidelines in the main repository.
+## Audits
+
+Audit reports are published in [`docs/audits/`](./docs/audits/).
+
+---
+
+## License
+
+This project is licensed under the MIT License — see [`LICENSE`](./LICENSE) for details.

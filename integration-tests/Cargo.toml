@@ -1,0 +1,24 @@
+[package]
+name        = "fusepay-integration-tests"
+description = "Cross-contract integration tests for the FusePay platform"
+version.workspace    = true
+edition.workspace    = true
+authors.workspace    = true
+license.workspace    = true
+repository.workspace = true
+
+# Integration tests are a binary crate — they are never compiled to wasm.
+[lib]
+name = "fusepay_integration_tests"
+
+[dev-dependencies]
+soroban-sdk      = { version = "=26.1.0", features = ["testutils"] }
+fusepay-wallet         = { path = "../contracts/wallet" }
+fusepay-escrow         = { path = "../contracts/escrow" }
+fusepay-treasury       = { path = "../contracts/treasury" }
+fusepay-fee-manager    = { path = "../contracts/fee-manager" }
+fusepay-access-control = { path = "../contracts/access-control" }
+fusepay-multisig       = { path = "../contracts/multisig" }
+shared-utils           = { workspace = true }
+shared-constants       = { workspace = true }
+

@@ -1,0 +1,27 @@
+# Rust / Cargo
+/target/
+Cargo.lock
+
+# Deployment artefacts — contract IDs are committed but wasm binaries are not
+*.wasm
+*.optimised.wasm
+
+# Deployment secrets — NEVER commit private keys
+*.secret
+*.pem
+.env
+.env.*
+secrets/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
