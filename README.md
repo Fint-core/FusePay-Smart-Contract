@@ -1,11 +1,5 @@
 # FusePay Contracts
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://github.com/fusepay/fusepay-contracts/actions/workflows/ci.yml/badge.svg)](https://github.com/fusepay/fusepay-contracts/actions)
-[![Security Audit](https://img.shields.io/badge/security-audited-green)](./docs/audits/)
-
-> Production-ready Soroban smart contracts for the FusePay open-source fintech platform.
-
 FusePay
 
 Product Requirements & Technical Architecture
